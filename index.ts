@@ -1,3 +1,4 @@
+
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
 import path from "path";
@@ -6,6 +7,16 @@ import cors from "cors";
 dotenv.config();
 
 const app: Express = express();
+
+app.use(express.json());
+app.use(cors());
+
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('/*', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
+
 interface FormInputs {
   email: string,
   password: string
@@ -27,16 +38,6 @@ const users = [
   }
 ];
 
-app.use(express.json());
-app.use(cors());
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-
-  app.get('/*', function (req: Request, res: Response) {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-}
-
 // route login
 app.post('/login', (req: Request, res: Response) => {
   const { email, password }:FormInputs = req.body;
@@ -51,6 +52,7 @@ app.post('/login', (req: Request, res: Response) => {
 
   return res.status(200).json(user)
 });
+
 
 const port = process.env.PORT || 8000;
 
